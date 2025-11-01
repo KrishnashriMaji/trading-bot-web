@@ -1,0 +1,14 @@
+WebSocket Real-Time Updates
+
+
+Backend WebSocket Server
+    ↓
+Broadcasts events:
+    - Bot status changes
+    - New trades
+    - Position updates
+    - P&L updates
+    ↓
+Frontend Listens
+    ↓
+Auto-updates UI in real-time
