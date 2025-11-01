@@ -2,11 +2,31 @@ frontend/
 ├── src/
 │ ├── components/
 │ │ ├── common/
+│ │ │ ├── AdvancedFilters.jsx
+│ │ │ ├── Badge.jsx
 │ │ │ ├── Button.jsx
 │ │ │ ├── Card.jsx
+│ │ │ ├── ConfirmDialog.jsx
+│ │ │ ├── EmptyState.jsx
+│ │ │ ├── ErrorBoundary.jsx
+│ │ │ ├── ExportButton.jsx
 │ │ │ ├── Input.jsx
+│ │ │ ├── Loading.jsx
+│ │ │ ├── Loading.jsx
+│ │ │ ├── Modal.jsx
+│ │ │ ├── Select.jsx
 │ │ │ ├── Table.jsx
-│ │ │ └── Modal.jsx
+│ │ │ ├── Toast.jsx
+│ │ │
+│ │ ├── analytics/
+│ │ │ ├── MonthlyPnLChart.jsx
+│ │ │ ├── PerformanceChart.jsx
+│ │ │ ├── TradeDistribution.jsx
+│ │ │ └── WinLossChart.jsx
+│ │ │
+│ │ ├── broker/
+│ │ │ ├── BrokerCard.jsx
+│ │ │ ├── BrokerForm.jsx
 │ │ │
 │ │ ├── layout/
 │ │ │ ├── Navbar.jsx
@@ -19,29 +39,43 @@ frontend/
 │ │ │ ├── PnLChart.jsx
 │ │ │ └── ActiveBots.jsx
 │ │ │
+│ │ └── strategy/
+│ │ │
+│ │ └── trade/
+│ │ ├── TradeStats.jsx
+│ │ ├── TradeTable.jsx
+│ │ │
 │ │ └── bot/
 │ │ ├── BotCard.jsx
 │ │ ├── BotForm.jsx
 │ │ └── BotStatus.jsx
 │ │
 │ ├── pages/
+│ │ ├── Analytics.jsx
+│ │ ├── Bots.jsx
+│ │ ├── Brokers.jsx
+│ │ ├── Dashboard.jsx
+│ │ ├── Help.jsx
 │ │ ├── Login.jsx
 │ │ ├── Register.jsx
-│ │ ├── Dashboard.jsx
-│ │ ├── Bots.jsx
-│ │ ├── Trades.jsx
+│ │ ├── Settings.jsx
 │ │ ├── Strategies.jsx
-│ │ └── Settings.jsx
+│ │ └── Trades.jsx
 │ │
 │ ├── services/
 │ │ ├── api.js
 │ │ ├── authService.js
 │ │ ├── botService.js
-│ │ └── tradeService.js
+│ │ ├── brokerService.js
+│ │ ├── tradeService.js
+│ │ └── websocket.js
+│ │
+│ ├── utils/
+│ │ ├── notifications.js
 │ │
 │ ├── hooks/
 │ │ ├── useAuth.js
-│ │ └── useBots.js
+│ │ └── useWebSocket.js
 │ │
 │ ├── context/
 │ │ └── AuthContext.jsx

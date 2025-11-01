@@ -3,7 +3,7 @@ import Card from "../components/common/Card";
 import PerformanceChart from "../components/analytics/PerformanceChart";
 import WinLossChart from "../components/analytics/WinLossChart";
 import MonthlyPnLChart from "../components/analytics/MonthlyPnLChart";
-// import TradeDistribution from "../components/analytics/TradeDistribution";
+import TradeDistribution from "../components/analytics/TradeDistribution";
 import Loading from "../components/common/Loading";
 
 function Analytics() {
@@ -107,7 +107,7 @@ function Analytics() {
 
       {/* Trade Distribution */}
       <Card title="Trade Distribution by P&L">
-        {/* <TradeDistribution data={data.distribution} /> */}
+        <TradeDistribution data={data.distribution} />
       </Card>
     </div>
   );
