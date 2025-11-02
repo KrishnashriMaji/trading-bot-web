@@ -21,7 +21,7 @@ function Bots() {
       setLoading(true);
       setError(null);
       const data = await botService.getBots();
-      setBots(data);
+      setBots(Array.isArray(data) ? data : data?.bots || []);
     } catch (error) {
       console.error("Error loading bots:", error);
       setError(error.message || "Failed to load bots");
@@ -167,7 +167,6 @@ function Bots() {
           + Create New Bot
         </button>
       </div>
-
       {/* Bots Grid */}
       {bots.length === 0 ? (
         <EmptyState
@@ -178,7 +177,7 @@ function Bots() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bots.map((bot) => (
+          {bots?.map((bot) => (
             <BotCard
               key={bot._id}
               bot={bot}
@@ -190,7 +189,6 @@ function Bots() {
           ))}
         </div>
       )}
-
       {/* Create Bot Modal */}
       <Modal
         isOpen={showCreateForm}

@@ -1,77 +1,61 @@
-import React, { useState } from "react";
-import Input from "../common/Input";
+import React, { useState, useEffect } from "react";
 import Select from "../common/Select";
 import Button from "../common/Button";
+import { strategyService } from "../../services/strategyService";
 
 function StrategyForm({ onSubmit, onCancel, initialData = null }) {
   const [formData, setFormData] = useState({
-    name: initialData?.name || "",
-    type: initialData?.type || "",
+    strategyName: initialData?.strategyName || "",
+    strategyLabel: initialData?.strategyLabel || "",
     description: initialData?.description || "",
-    isActive: initialData?.isActive !== undefined ? initialData.isActive : true,
-    // Default parameters based on strategy type
-    parameters: initialData?.parameters || {},
   });
 
+  const [availableStrategies, setAvailableStrategies] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
 
-  const strategyTypes = [
-    { value: "emaCrossover", label: "EMA Crossover" },
-    { value: "rsi", label: "RSI Oversold/Overbought" },
-    { value: "macd", label: "MACD Signal" },
-    { value: "breakout", label: "Breakout Strategy" },
-    { value: "meanReversion", label: "Mean Reversion" },
-    { value: "bollingerBands", label: "Bollinger Bands" },
-  ];
+  useEffect(() => {
+    loadStrategyNames();
+  }, []);
 
-  const timeframes = [
-    { value: "1m", label: "1 Minute" },
-    { value: "5m", label: "5 Minutes" },
-    { value: "15m", label: "15 Minutes" },
-    { value: "30m", label: "30 Minutes" },
-    { value: "1h", label: "1 Hour" },
-    { value: "4h", label: "4 Hours" },
-    { value: "1d", label: "1 Day" },
-  ];
+  const loadStrategyNames = async () => {
+    try {
+      setLoading(true);
+      const response = await strategyService.getAvailableStrategies();
+      setAvailableStrategies(response?.templates || []);
+    } catch (error) {
+      console.error("Error loading strategy names:", error);
+      alert("❌ Failed to load strategy names");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleStrategyChange = (e) => {
+    const selectedLabel = e.target.value;
+    const selectedStrategy = availableStrategies.find(
+      (s) => s.label === selectedLabel
+    );
 
-    if (name.startsWith("param_")) {
-      const paramName = name.replace("param_", "");
-      setFormData((prev) => ({
-        ...prev,
-        parameters: {
-          ...prev.parameters,
-          [paramName]: type === "number" ? parseFloat(value) : value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
+    if (selectedStrategy) {
+      setFormData({
+        strategyName: selectedStrategy.name,
+        strategyLabel: selectedStrategy.label,
+        description: selectedStrategy.description,
+      });
     }
 
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+    // Clear error
+    if (errors.strategyLabel) {
+      setErrors((prev) => ({ ...prev, strategyLabel: "" }));
     }
   };
 
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Strategy name is required";
-    }
-
-    if (!formData.type) {
-      newErrors.type = "Strategy type is required";
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required";
+    if (!formData.strategyLabel) {
+      newErrors.strategyLabel = "Strategy name is required";
     }
 
     setErrors(newErrors);
@@ -84,302 +68,63 @@ function StrategyForm({ onSubmit, onCancel, initialData = null }) {
     if (!validate()) {
       return;
     }
-
-    onSubmit(formData);
+    onSubmit({
+      name: formData.strategyName,
+      label: formData.strategyLabel,
+    });
   };
 
-  // Render parameter fields based on strategy type
-  const renderParameterFields = () => {
-    switch (formData.type) {
-      case "emaCrossover":
-        return (
-          <>
-            <Input
-              label="Fast EMA Period"
-              name="param_fastEma"
-              type="number"
-              value={formData.parameters.fastEma || 9}
-              onChange={handleChange}
-              min="1"
-              required
-            />
-            <Input
-              label="Slow EMA Period"
-              name="param_slowEma"
-              type="number"
-              value={formData.parameters.slowEma || 21}
-              onChange={handleChange}
-              min="1"
-              required
-            />
-            <Select
-              label="Timeframe"
-              name="param_timeframe"
-              value={formData.parameters.timeframe || "5m"}
-              onChange={handleChange}
-              options={timeframes}
-              required
-            />
-          </>
-        );
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-gray-500">Loading strategies...</div>
+      </div>
+    );
+  }
 
-      case "rsi":
-        return (
-          <>
-            <Input
-              label="RSI Period"
-              name="param_period"
-              type="number"
-              value={formData.parameters.period || 14}
-              onChange={handleChange}
-              min="1"
-              required
-            />
-            <Input
-              label="Oversold Level"
-              name="param_oversold"
-              type="number"
-              value={formData.parameters.oversold || 30}
-              onChange={handleChange}
-              min="0"
-              max="50"
-              required
-            />
-            <Input
-              label="Overbought Level"
-              name="param_overbought"
-              type="number"
-              value={formData.parameters.overbought || 70}
-              onChange={handleChange}
-              min="50"
-              max="100"
-              required
-            />
-            <Select
-              label="Timeframe"
-              name="param_timeframe"
-              value={formData.parameters.timeframe || "15m"}
-              onChange={handleChange}
-              options={timeframes}
-              required
-            />
-          </>
-        );
-
-      case "macd":
-        return (
-          <>
-            <Input
-              label="Fast Period"
-              name="param_fastPeriod"
-              type="number"
-              value={formData.parameters.fastPeriod || 12}
-              onChange={handleChange}
-              min="1"
-              required
-            />
-            <Input
-              label="Slow Period"
-              name="param_slowPeriod"
-              type="number"
-              value={formData.parameters.slowPeriod || 26}
-              onChange={handleChange}
-              min="1"
-              required
-            />
-            <Input
-              label="Signal Period"
-              name="param_signalPeriod"
-              type="number"
-              value={formData.parameters.signalPeriod || 9}
-              onChange={handleChange}
-              min="1"
-              required
-            />
-            <Select
-              label="Timeframe"
-              name="param_timeframe"
-              value={formData.parameters.timeframe || "1h"}
-              onChange={handleChange}
-              options={timeframes}
-              required
-            />
-          </>
-        );
-
-      case "breakout":
-        return (
-          <>
-            <Input
-              label="Lookback Period"
-              name="param_lookbackPeriod"
-              type="number"
-              value={formData.parameters.lookbackPeriod || 20}
-              onChange={handleChange}
-              min="1"
-              required
-            />
-            <Input
-              label="Breakout Threshold (%)"
-              name="param_threshold"
-              type="number"
-              step="0.1"
-              value={formData.parameters.threshold || 0.5}
-              onChange={handleChange}
-              min="0"
-              required
-            />
-            <Select
-              label="Timeframe"
-              name="param_timeframe"
-              value={formData.parameters.timeframe || "15m"}
-              onChange={handleChange}
-              options={timeframes}
-              required
-            />
-          </>
-        );
-
-      case "meanReversion":
-        return (
-          <>
-            <Input
-              label="Moving Average Period"
-              name="param_maPeriod"
-              type="number"
-              value={formData.parameters.maPeriod || 20}
-              onChange={handleChange}
-              min="1"
-              required
-            />
-            <Input
-              label="Standard Deviations"
-              name="param_stdDevs"
-              type="number"
-              step="0.1"
-              value={formData.parameters.stdDevs || 2.0}
-              onChange={handleChange}
-              min="0"
-              required
-            />
-            <Select
-              label="Timeframe"
-              name="param_timeframe"
-              value={formData.parameters.timeframe || "15m"}
-              onChange={handleChange}
-              options={timeframes}
-              required
-            />
-          </>
-        );
-
-      case "bollingerBands":
-        return (
-          <>
-            <Input
-              label="Period"
-              name="param_period"
-              type="number"
-              value={formData.parameters.period || 20}
-              onChange={handleChange}
-              min="1"
-              required
-            />
-            <Input
-              label="Standard Deviations"
-              name="param_stdDev"
-              type="number"
-              step="0.1"
-              value={formData.parameters.stdDev || 2.0}
-              onChange={handleChange}
-              min="0"
-              required
-            />
-            <Select
-              label="Timeframe"
-              name="param_timeframe"
-              value={formData.parameters.timeframe || "15m"}
-              onChange={handleChange}
-              options={timeframes}
-              required
-            />
-          </>
-        );
-
-      default:
-        return (
-          <div className="text-center text-gray-500 py-4">
-            Select a strategy type to configure parameters
-          </div>
-        );
-    }
-  };
+  // Convert strategies to Select options format
+  const strategyOptions = availableStrategies.map((strategy) => ({
+    value: strategy.label,
+    label: strategy.name,
+  }));
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Basic Info */}
-      <div>
-        <Input
-          label="Strategy Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          error={errors.name}
-          placeholder="e.g., My EMA Strategy"
-          required
-        />
-      </div>
-
+      {/* Strategy Name - Dropdown from Backend */}
       <div>
         <Select
-          label="Strategy Type"
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
-          options={strategyTypes}
-          error={errors.type}
+          label="Strategy Name"
+          name="strategyLabel"
+          value={formData.strategyLabel}
+          onChange={handleStrategyChange}
+          options={strategyOptions}
+          error={errors.strategyLabel}
           required
         />
+        <p className="text-xs text-gray-500 mt-1">
+          Select from available backend strategies
+        </p>
       </div>
 
+      {/* Description - Read-only, auto-populated */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Description
+          Description <span className="text-red-500">*</span>
         </label>
         <textarea
           name="description"
           value={formData.description}
-          onChange={handleChange}
-          rows="3"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Describe your strategy..."
-          required
+          rows="6"
+          readOnly
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+          placeholder="Description will be auto-populated when you select a strategy..."
         />
         {errors.description && (
           <p className="text-red-500 text-sm mt-1">{errors.description}</p>
         )}
-      </div>
-
-      {/* Strategy Parameters */}
-      {formData.type && (
-        <div className="border-t pt-6">
-          <h4 className="font-semibold text-lg mb-4">Strategy Parameters</h4>
-          <div className="space-y-4">{renderParameterFields()}</div>
-        </div>
-      )}
-
-      {/* Active Toggle */}
-      <div className="flex items-center">
-        <input
-          type="checkbox"
-          name="isActive"
-          checked={formData.isActive}
-          onChange={handleChange}
-          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-        />
-        <label className="ml-2 text-sm text-gray-700">
-          Activate this strategy immediately
-        </label>
+        <p className="text-xs text-gray-500 mt-1">
+          This description is provided by the backend and cannot be edited
+        </p>
       </div>
 
       {/* Actions */}

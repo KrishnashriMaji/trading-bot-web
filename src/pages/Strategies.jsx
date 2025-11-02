@@ -6,6 +6,7 @@ import Badge from "../components/common/Badge";
 import StrategyForm from "../components/strategy/StrategyForm";
 import Loading from "../components/common/Loading";
 import EmptyState from "../components/common/EmptyState";
+import { strategyService } from "../services/strategyService";
 
 function Strategies() {
   const [strategies, setStrategies] = useState([]);
@@ -21,53 +22,8 @@ function Strategies() {
   const loadStrategies = async () => {
     try {
       setLoading(true);
-      // API call will go here
-      // const data = await strategyService.getStrategies();
-
-      // Mock data for now
-      setStrategies([
-        {
-          _id: "1",
-          name: "EMA Crossover",
-          type: "emaCrossover",
-          description: "Fast EMA crosses above/below slow EMA",
-          isActive: true,
-          parameters: {
-            fastEma: 9,
-            slowEma: 21,
-            timeframe: "5m",
-          },
-          createdAt: new Date().toISOString(),
-        },
-        {
-          _id: "2",
-          name: "RSI Oversold/Overbought",
-          type: "rsi",
-          description: "Buy when RSI < 30, Sell when RSI > 70",
-          isActive: true,
-          parameters: {
-            period: 14,
-            oversold: 30,
-            overbought: 70,
-            timeframe: "15m",
-          },
-          createdAt: new Date().toISOString(),
-        },
-        {
-          _id: "3",
-          name: "MACD Signal",
-          type: "macd",
-          description: "Trade based on MACD histogram crossovers",
-          isActive: false,
-          parameters: {
-            fastPeriod: 12,
-            slowPeriod: 26,
-            signalPeriod: 9,
-            timeframe: "1h",
-          },
-          createdAt: new Date().toISOString(),
-        },
-      ]);
+      const data = await strategyService.getStrategies();
+      setStrategies(data?.strategies || []);
     } catch (error) {
       console.error("Error loading strategies:", error);
       alert("❌ Failed to load strategies");
@@ -78,16 +34,8 @@ function Strategies() {
 
   const handleCreate = async (strategyData) => {
     try {
-      // API call will go here
-      // await strategyService.createStrategy(strategyData);
-
-      // Mock implementation
-      const newStrategy = {
-        _id: Date.now().toString(),
-        ...strategyData,
-        createdAt: new Date().toISOString(),
-      };
-      setStrategies([...strategies, newStrategy]);
+      await strategyService.createStrategy(strategyData);
+      loadStrategies();
       setShowCreateModal(false);
       alert("✅ Strategy created successfully!");
     } catch (error) {
@@ -103,15 +51,11 @@ function Strategies() {
 
   const handleUpdate = async (strategyData) => {
     try {
-      // API call will go here
-      // await strategyService.updateStrategy(selectedStrategy._id, strategyData);
-
-      // Mock implementation
-      setStrategies(
-        strategies.map((s) =>
-          s._id === selectedStrategy._id ? { ...s, ...strategyData } : s
-        )
+      const result = await strategyService.updateStrategy(
+        selectedStrategy._id,
+        strategyData
       );
+      loadStrategies();
       setShowEditModal(false);
       setSelectedStrategy(null);
       alert("✅ Strategy updated successfully!");
@@ -127,10 +71,7 @@ function Strategies() {
     }
 
     try {
-      // API call will go here
-      // await strategyService.deleteStrategy(id);
-
-      // Mock implementation
+      await strategyService.deleteStrategy(id);
       setStrategies(strategies.filter((s) => s._id !== id));
       alert("✅ Strategy deleted successfully!");
     } catch (error) {
@@ -141,10 +82,8 @@ function Strategies() {
 
   const handleToggleActive = async (id) => {
     try {
-      // API call will go here
-      // await strategyService.toggleStrategy(id);
+      await strategyService.toggleStrategy(id);
 
-      // Mock implementation
       setStrategies(
         strategies.map((s) =>
           s._id === id ? { ...s, isActive: !s.isActive } : s
@@ -194,10 +133,10 @@ function Strategies() {
             {strategies.filter((s) => !s.isActive).length}
           </p>
         </Card>
-        <Card>
+        {/* <Card>
           <p className="text-sm text-gray-600">Most Used</p>
           <p className="text-lg font-bold">EMA Crossover</p>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Strategies Grid */}
@@ -227,17 +166,19 @@ function Strategies() {
 
               {/* Details */}
               <div className="space-y-2 text-sm mb-4">
-                <p>
+                {/* <p>
                   <span className="font-medium text-gray-600">Type:</span>{" "}
                   <span className="text-gray-800">{strategy.type}</span>
-                </p>
+                </p> */}
                 <p>
-                  <span className="font-medium text-gray-600">Parameters:</span>
+                  <span className="font-medium text-gray-600">
+                    Description:
+                  </span>
                 </p>
                 <div className="bg-gray-50 p-3 rounded border border-gray-200">
-                  <pre className="text-xs text-gray-700 whitespace-pre-wrap">
+                  {/* <pre className="text-xs text-gray-700 whitespace-pre-wrap">
                     {JSON.stringify(strategy.parameters, null, 2)}
-                  </pre>
+                  </pre> */}
                 </div>
               </div>
 

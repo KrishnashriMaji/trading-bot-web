@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Badge from "../common/Badge";
 
 function ActiveBots({ bots }) {
-  const activeBots = bots.filter((bot) => bot.status === "RUNNING");
+  const activeBots = bots?.filter((bot) => bot.status === "RUNNING");
 
   return (
     <div className="bg-white rounded-lg shadow p-6">

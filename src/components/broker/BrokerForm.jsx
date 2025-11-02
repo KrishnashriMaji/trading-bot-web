@@ -16,8 +16,7 @@ function BrokerForm({ onSubmit, onCancel }) {
 
   const brokerOptions = [
     { value: "angelone", label: "Angel One (Recommended - FREE)" },
-    { value: "zerodha", label: "Zerodha (₹2,000/month)" },
-    { value: "upstox", label: "Upstox" },
+    { value: "zerodha", label: "Zerodha (₹500/month)" },
   ];
 
   const handleChange = (e) => {
@@ -89,13 +88,13 @@ function BrokerForm({ onSubmit, onCancel }) {
         placeholder="Your trading password"
       />
 
-      <Input
+      {/* <Input
         label="TOTP Secret (Optional)"
         name="totpSecret"
         value={formData.totpSecret}
         onChange={handleChange}
         placeholder="For 2FA authentication"
-      />
+      /> */}
 
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
         <p className="text-sm text-yellow-800">

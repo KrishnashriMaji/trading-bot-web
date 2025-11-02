@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
     try {
       if (authService.isAuthenticated()) {
         const userData = await authService.getProfile();
-        setUser(userData);
+        setUser(userData?.user);
       }
     } catch (error) {
       console.error("Failed to load user:", error);

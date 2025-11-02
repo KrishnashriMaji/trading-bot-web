@@ -1,4 +1,3 @@
-// frontend/src/services/brokerService.js
 import api from "./api";
 
 export const brokerService = {
@@ -17,8 +16,8 @@ export const brokerService = {
     return response.data;
   },
 
-  async testConnection(brokerId) {
-    const response = await api.post(`/brokers/${brokerId}/connect`);
+  async testConnection(brokerId, totp) {
+    const response = await api.post(`/brokers/${brokerId}/connect`, totp);
     return response.data;
   },
 

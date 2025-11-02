@@ -18,7 +18,6 @@ function Register() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    console.log(e.target.value);
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,

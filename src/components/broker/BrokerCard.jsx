@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Badge from "../common/Badge";
 import Button from "../common/Button";
 import { format } from "date-fns";
 
 function BrokerCard({ broker, onTest, onRemove }) {
+  const [totp, setTotp] = useState("");
+
   const getBrokerIcon = (name) => {
     switch (name.toLowerCase()) {
       case "angel one":
@@ -11,11 +13,22 @@ function BrokerCard({ broker, onTest, onRemove }) {
         return "😇";
       case "zerodha":
         return "🦓";
-      case "upstox":
-        return "📈";
       default:
         return "🏦";
     }
+  };
+
+  const handleTestClick = () => {
+    if (!broker.isConnected && !totp) {
+      alert("Please enter your TOTP before testing connection!");
+      return;
+    }
+
+    // ✅ Call parent handler with both brokerId and totp
+    onTest(broker._id, totp);
+
+    // Clear input after use
+    setTotp("");
   };
 
   return (
@@ -44,19 +57,32 @@ function BrokerCard({ broker, onTest, onRemove }) {
             {broker.isConnected ? "✅ Active" : "❌ Inactive"}
           </span>
         </div>
-        <div className="flex justify-between">
+        {/* <div className="flex justify-between">
           <span className="text-gray-600">API Cost:</span>
           <span className="font-semibold">
-            {broker.name === "Angel One" ? "FREE" : "₹2,000/mo"}
+            {broker.name === "angelone" ? "FREE" : "₹2,000/mo"}
           </span>
-        </div>
+        </div> */}
       </div>
+      {!broker.isConnected && (
+        <div className="mb-4">
+          <label className="block text-sm text-gray-600 mb-1">Enter TOTP</label>
+          <input
+            type="text"
+            value={totp}
+            onChange={(e) => setTotp(e.target.value)}
+            placeholder="6-digit TOTP"
+            maxLength={6}
+            className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+        </div>
+      )}
 
       <div className="flex gap-2">
         <Button
           size="sm"
           variant="secondary"
-          onClick={onTest}
+          onClick={handleTestClick}
           className="flex-1"
         >
           Test Connection

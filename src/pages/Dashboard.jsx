@@ -48,7 +48,7 @@ function Dashboard() {
         tradeService.getStats(),
         tradeService.getTrades({ limit: 10 }),
       ]);
-      setBots(botsData);
+      setBots(Array.isArray(botsData) ? botsData : botsData?.bots || []);
       setStats(statsData);
       setRecentTrades(tradesData.trades);
     } catch (error) {
@@ -160,7 +160,7 @@ function Dashboard() {
         />
         <StatsCard
           title="Active Bots"
-          value={bots.filter((b) => b.status === "RUNNING").length}
+          value={bots?.filter((b) => b.status === "RUNNING").length}
           icon="🤖"
         />
       </div>

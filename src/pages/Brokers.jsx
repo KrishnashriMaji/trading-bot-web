@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
 import Modal from "../components/common/Modal";
@@ -6,8 +7,10 @@ import Badge from "../components/common/Badge";
 import BrokerForm from "../components/broker/BrokerForm";
 import BrokerCard from "../components/broker/BrokerCard";
 import Loading from "../components/common/Loading";
+import { brokerService } from "../services/brokerService";
 
 function Brokers() {
+  const { user } = useAuth();
   const [brokers, setBrokers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -19,20 +22,10 @@ function Brokers() {
   const loadBrokers = async () => {
     try {
       // API call will go here
-      // const data = await brokerService.getBrokers();
+      const data = await brokerService.getBrokers();
 
       // Mock data for now
-      setBrokers([
-        {
-          _id: "1",
-          name: "Angel One",
-          isConnected: true,
-          lastConnected: new Date(),
-          credentials: {
-            /* encrypted */
-          },
-        },
-      ]);
+      setBrokers(data);
     } catch (error) {
       console.error("Error loading brokers:", error);
     } finally {
@@ -42,8 +35,8 @@ function Brokers() {
 
   const handleAddBroker = async (brokerData) => {
     try {
-      // API call: await brokerService.addBroker(brokerData);
-      console.log("Adding broker:", brokerData);
+      const result = await brokerService.addBroker(brokerData);
+      console.log("Adding broker:", result);
       setShowAddModal(false);
       loadBrokers();
     } catch (error) {
@@ -51,10 +44,9 @@ function Brokers() {
     }
   };
 
-  const handleTestConnection = async (brokerId) => {
+  const handleTestConnection = async (brokerId, totp) => {
     try {
-      // API call: await brokerService.testConnection(brokerId);
-      alert("Connection successful!");
+      await brokerService.testConnection(brokerId, { totp });
       loadBrokers();
     } catch (error) {
       alert("Connection failed: " + error.message);
@@ -65,7 +57,7 @@ function Brokers() {
     if (!confirm("Are you sure you want to remove this broker?")) return;
 
     try {
-      // API call: await brokerService.removeBroker(brokerId);
+      await brokerService.removeBroker(brokerId);
       loadBrokers();
     } catch (error) {
       alert("Failed to remove broker");
@@ -96,8 +88,7 @@ function Brokers() {
             </h3>
             <ul className="text-sm text-blue-800 space-y-1">
               <li>• Angel One - Free API, No monthly charges</li>
-              <li>• Zerodha - Kite Connect (₹2,000/month)</li>
-              <li>• Upstox - Pro API</li>
+              <li>• Zerodha - Kite Connect (₹500/month)</li>
             </ul>
           </div>
         </div>
@@ -123,7 +114,7 @@ function Brokers() {
             <BrokerCard
               key={broker._id}
               broker={broker}
-              onTest={() => handleTestConnection(broker._id)}
+              onTest={handleTestConnection}
               onRemove={() => handleRemove(broker._id)}
             />
           ))}

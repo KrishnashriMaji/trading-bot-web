@@ -2,6 +2,7 @@ import React from "react";
 
 function Select({
   label,
+  name,
   value,
   onChange,
   options = [],
@@ -19,6 +20,7 @@ function Select({
         </label>
       )}
       <select
+        name={name}
         value={value}
         onChange={onChange}
         required={required}
